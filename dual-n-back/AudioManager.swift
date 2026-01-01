@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 class AudioManager: ObservableObject {
+    static let shared = AudioManager()
     private var speechSynthesizer = AVSpeechSynthesizer()
     
     func speakLetter(_ letter: String) {
