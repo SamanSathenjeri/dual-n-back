@@ -16,7 +16,7 @@ struct GameOverModifier: ViewModifier {
                 Button("Play Again") { game.resetGame() }
                 Button("OK", role: .cancel) { }
             } message: {
-                Text("Audio: \(game.correctAudioAnswers) / \(game.totalAudioAnswers)")
+                Text("\(self.alertMessage)")
             }
     }
     

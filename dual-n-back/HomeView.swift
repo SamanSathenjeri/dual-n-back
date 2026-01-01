@@ -20,15 +20,15 @@ struct HomeView: View {
                     )
                 }
 
-                Button(action: vm.playRound) {
-                    Text("▶ Play Next Round")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.black)
-                        .foregroundColor(.white)
-                        .cornerRadius(14)
-                }
+//                Button(action: vm.playRound) {
+//                    Text("▶ Play Next Round")
+//                        .font(.headline)
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                        .background(Color.black)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(14)
+//                }
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Your Progress")

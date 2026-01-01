@@ -5,14 +5,13 @@
 //  Created by Saman Sathenjeri on 12/31/25.
 //
 
-
 import SwiftUI
 
 struct ButtonView: View {
     
     @ObservedObject var game: DualNBackGame
-    @State private var positionSelected = false
-    @State private var audioSelected = false
+    @State var positionSelected = false
+    @State var audioSelected = false
     
     var body: some View {
         // Answer buttons - full left and right sides
@@ -20,7 +19,7 @@ struct ButtonView: View {
             HStack(spacing: 0) {
                 
                 // Left side - Position button
-                Button(action: {
+                Button(action: { 
                     positionSelected.toggle()
                     checkPositionAndSubmit()
                 }) {
@@ -30,12 +29,13 @@ struct ButtonView: View {
                             .padding(.top, 600)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(game.positionButtonColor)
+                    .background(positionColor())
+                    .animation(.easeOut(duration: 0.2), value: game.positionResult)
                 }
                 
                 // Right side - Audio button
-                Button(action: {
-                    audioSelected.toggle()
+                Button(action: { 
+                    audioSelected.toggle() 
                     checkAudioAndSubmit()
                 }) {
                     HStack {
@@ -44,7 +44,18 @@ struct ButtonView: View {
                             .padding(.top, 600)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(game.audioButtonColor)
+                    .background(audioColor())
+                    .animation(.easeOut(duration: 0.2), value: game.audioResult)
+                }
+            }
+            .onChange(of: game.currentRound) { oldRound, newRound in
+                // This code runs automatically whenever the round changes
+                if game.isPlaying {
+                    checkPositionAndSubmit()
+                    checkAudioAndSubmit()
+
+                    positionSelected = false
+                    audioSelected = false
                 }
             }
         }
@@ -56,7 +67,7 @@ struct ButtonView: View {
                         .padding(.top, 600)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(game.positionButtonColor)
+                .background(positionColor())
                 
                 HStack {
                     Text("AUDIO")
@@ -64,7 +75,7 @@ struct ButtonView: View {
                         .padding(.top, 600)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(game.audioButtonColor)
+                .background(audioColor())
             }
         }
     }
@@ -80,6 +91,32 @@ struct ButtonView: View {
         if !game.audioSubmitted {
             game.checkAudioMatch(audioMatch: audioSelected)
             audioSelected = false
+        }
+    }
+
+    private func positionColor() -> Color {
+        switch game.positionResult {
+        case .none:
+            return .white
+        case .correct:
+            return .green
+        case .wrong:
+            return .red
+        case .missed:
+            return .orange
+        }
+    }
+
+    private func audioColor() -> Color {
+        switch game.audioResult {
+        case .none:
+            return .white
+        case .correct:
+            return .green
+        case .wrong:
+            return .red
+        case .missed:
+            return .orange
         }
     }
 }

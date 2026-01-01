@@ -9,8 +9,6 @@ import SwiftUI
 
 struct GameView: View {
     @ObservedObject var game: DualNBackGame
-    @State private var positionSelected = false
-    @State private var audioSelected = false
     
     var body: some View {
         NavigationStack {
@@ -20,12 +18,8 @@ struct GameView: View {
                 ButtonToggleView(game: game)
             }
         }
+        .modifier(GameOverModifier(game: game))
         .navigationTitle("Dual N-Back")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: game.currentRound) { _, _ in
-            positionSelected = false
-            audioSelected = false
-        }
     }
 }
-
