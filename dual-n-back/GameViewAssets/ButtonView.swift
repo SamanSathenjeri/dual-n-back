@@ -30,7 +30,7 @@ struct ButtonView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(positionColor())
-                    .animation(.easeOut(duration: 0.2), value: game.positionResult)
+                    .animation(.easeOut(duration: 0.4), value: game.positionResult)
                 }
                 
                 // Right side - Audio button
@@ -50,10 +50,9 @@ struct ButtonView: View {
             }
             .onChange(of: game.currentRound) { oldRound, newRound in
                 // This code runs automatically whenever the round changes
+                // Reset button selection state for the new round
+                // Missed answer detection is now handled in nextRound()
                 if game.isPlaying {
-                    checkPositionAndSubmit()
-                    checkAudioAndSubmit()
-
                     positionSelected = false
                     audioSelected = false
                 }

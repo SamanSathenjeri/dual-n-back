@@ -36,7 +36,7 @@ struct ButtonToggleView: View {
             Button(action: {
                 game.resetGame()
             }) {
-                Text("Stop Game")
+                Text("Stop")
                     .font(.headline)
                     .foregroundColor(.red)
                     .padding(.vertical, 10)

@@ -31,6 +31,7 @@ class DualNBackGame: ObservableObject {
     private var audioHistory: [String] = []
     private var roundTimer: Timer?
     private var gameTimer: Timer?
+    private var missedResetTimer: Timer?
     private let letters = ["a", "b", "c", "f", "h", "k", "j", "l", "o"]
     var n: Int = 2 { didSet { resetGame()}}
     var roundDuration: TimeInterval = 2.0 { didSet { resetGame() }}
@@ -61,6 +62,8 @@ class DualNBackGame: ObservableObject {
         roundTimer = nil
         gameTimer?.invalidate()
         gameTimer = nil
+        missedResetTimer?.invalidate()
+        missedResetTimer = nil
         
         calculatePerformance()
         gameEnded = true
@@ -73,6 +76,8 @@ class DualNBackGame: ObservableObject {
         roundTimer = nil
         gameTimer?.invalidate()
         gameTimer = nil
+        missedResetTimer?.invalidate()
+        missedResetTimer = nil
         currentRound = 0
         positionHistory = []
         audioHistory = []
@@ -84,6 +89,8 @@ class DualNBackGame: ObservableObject {
         correctPositionAnswers = 0
         timeRemaining = gameDuration
         gameEndPerformance = .needsPractice
+        positionResult = .none
+        audioResult = .none
     }
     
     private func calculatePerformance() {
@@ -113,11 +120,64 @@ class DualNBackGame: ObservableObject {
     func nextRound() {
         guard isPlaying else { return }
         
+        // Check for missed answers from the previous round BEFORE resetting
+        var positionMissedFromPreviousRound = false
+        var audioMissedFromPreviousRound = false
+        
+        // Only check for missed answers if we have enough rounds to compare
+        if currentRound > n {
+            // Check if user didn't submit position answer and there was an expected match
+            if !positionSubmitted && positionHistory.count > n {
+                let previousPos = positionHistory[currentRound - 1]
+                let nBackPos = positionHistory[currentRound - 1 - n]
+                let expectedPositionMatch = previousPos.row == nBackPos.row && previousPos.col == nBackPos.col
+                if expectedPositionMatch {
+                    positionMissedFromPreviousRound = true
+                }
+            }
+            
+            // Check if user didn't submit audio answer and there was an expected match
+            if !audioSubmitted && audioHistory.count > n {
+                let previousAudio = audioHistory[currentRound - 1]
+                let nBackAudio = audioHistory[currentRound - 1 - n]
+                let expectedAudioMatch = previousAudio == nBackAudio
+                if expectedAudioMatch {
+                    audioMissedFromPreviousRound = true
+                }
+            }
+        }
+        
         // Reset answer state for new round
         positionSubmitted = false
         audioSubmitted = false
         positionResult = .none
         audioResult = .none
+        
+        // Set missed status from previous round if there were misses
+        if positionMissedFromPreviousRound {
+            positionResult = .missed
+        }
+        if audioMissedFromPreviousRound {
+            audioResult = .missed
+        }
+        
+        // Reset missed answers after a brief delay so they don't persist throughout the round
+        // User answers will overwrite them immediately
+        missedResetTimer?.invalidate()
+        if positionMissedFromPreviousRound || audioMissedFromPreviousRound {
+            missedResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    // Only reset if still showing missed (user hasn't answered yet)
+                    if self.positionResult == .missed {
+                        self.positionResult = .none
+                    }
+                    if self.audioResult == .missed {
+                        self.audioResult = .none
+                    }
+                }
+            }
+        }
         
         // Generate random position (3x3 grid, indices 0-2)
         let newRow = Int.random(in: 0..<3)
@@ -151,7 +211,12 @@ class DualNBackGame: ObservableObject {
         let nBackPos = positionHistory[currentRound - 1 - n]
         let expectedPositionMatch = currentPos.row == nBackPos.row && currentPos.col == nBackPos.col
 
-        positionSubmitted = true
+        // Only set submitted if user actually answered (positionMatch is true or false from user action)
+        // If this is called at round end with no answer, positionMatch will be false but we want to detect missed
+        let wasAlreadySubmitted = positionSubmitted
+        if !wasAlreadySubmitted {
+            positionSubmitted = true
+        }
 
         // If there is a position match, then count up 
         if expectedPositionMatch == true || positionMatch == true{
@@ -167,7 +232,11 @@ class DualNBackGame: ObservableObject {
             positionResult = .wrong
         }
         else if (expectedPositionMatch == true && positionMatch == false) {
-            positionResult = .missed
+            // Only set missed if user didn't already answer (to allow overwriting)
+            if !wasAlreadySubmitted {
+                print("Missed Position")
+                positionResult = .missed
+            }
         }
     }
     
@@ -179,7 +248,12 @@ class DualNBackGame: ObservableObject {
         let nBackAudio = audioHistory[currentRound - 1 - n]
         let expectedAudioMatch = currentAudio == nBackAudio
 
-        audioSubmitted = true
+        // Only set submitted if user actually answered (audioMatch is true or false from user action)
+        // If this is called at round end with no answer, audioMatch will be false but we want to detect missed
+        let wasAlreadySubmitted = audioSubmitted
+        if !wasAlreadySubmitted {
+            audioSubmitted = true
+        }
 
         // If there is a audio match, then count up 
         if expectedAudioMatch == true || audioMatch == true {
@@ -195,13 +269,18 @@ class DualNBackGame: ObservableObject {
             audioResult = .wrong
         }
         else if (expectedAudioMatch == true && audioMatch == false) {
-            audioResult = .missed
+            // Only set missed if user didn't already answer (to allow overwriting)
+            if !wasAlreadySubmitted {
+                print("Missed Audio")
+                audioResult = .missed
+            }
         }
     }
     
     deinit {
         roundTimer?.invalidate()
         gameTimer?.invalidate()
+        missedResetTimer?.invalidate()
     }
 }
 
