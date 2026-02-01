@@ -25,8 +25,8 @@ struct ButtonView: View {
                 }) {
                     HStack {
                         Text("POSITION")
-                            .font(.system(size: 20, weight: .bold))
-                            .padding(.top, 600)
+                            .font(.system(size: 15, weight: .bold))
+                            .padding(.top, 500)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(positionColor())
@@ -40,8 +40,8 @@ struct ButtonView: View {
                 }) {
                     HStack {
                         Text("AUDIO")
-                            .font(.system(size: 20, weight: .bold))
-                            .padding(.top, 600)
+                            .font(.system(size: 15, weight: .bold))
+                            .padding(.top, 500)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(audioColor())
@@ -62,16 +62,16 @@ struct ButtonView: View {
             HStack(spacing: 0) {
                 HStack {
                     Text("POSITION")
-                        .font(.system(size: 20, weight: .bold))
-                        .padding(.top, 600)
+                        .font(.system(size: 15, weight: .bold))
+                        .padding(.top, 500)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(positionColor())
                 
                 HStack {
                     Text("AUDIO")
-                        .font(.system(size: 20, weight: .bold))
-                        .padding(.top, 600)
+                        .font(.system(size: 15, weight: .bold))
+                        .padding(.top, 500)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(audioColor())
@@ -96,7 +96,7 @@ struct ButtonView: View {
     private func positionColor() -> Color {
         switch game.positionResult {
         case .none:
-            return .white
+            return Color(.systemBackground)
         case .correct:
             return .green
         case .wrong:
@@ -109,7 +109,7 @@ struct ButtonView: View {
     private func audioColor() -> Color {
         switch game.audioResult {
         case .none:
-            return .white
+            return Color(.systemBackground)
         case .correct:
             return .green
         case .wrong:

@@ -23,8 +23,20 @@ class DualNBackGame: ObservableObject {
     @Published var totalPositionAnswers: Int = 0
     @Published var correctPositionAnswers: Int = 0
     @Published var timeRemaining: Int = 60
-    @Published var positionResult: AnswerResult = .none
-    @Published var audioResult: AnswerResult = .none
+    @Published var positionResult: AnswerResult = .none {
+        didSet {
+            if hapticsEnabled && positionResult != .none {
+                triggerHaptic(for: positionResult)
+            }
+        }
+    }
+    @Published var audioResult: AnswerResult = .none {
+        didSet {
+            if hapticsEnabled && audioResult != .none {
+                triggerHaptic(for: audioResult)
+            }
+        }
+    }
     @Published var gameEndPerformance: GamePerformance = .needsPractice
 
     private var positionHistory: [(row: Int, col: Int)] = []
@@ -36,6 +48,21 @@ class DualNBackGame: ObservableObject {
     var n: Int = 2 { didSet { resetGame()}}
     var roundDuration: TimeInterval = 2.0 { didSet { resetGame() }}
     var gameDuration: Int = 60 { didSet { resetGame() }}
+    var hapticsEnabled: Bool = false
+    
+    // UserDefaults keys
+    private let nValueKey = "nValue"
+    private let gameDurationKey = "gameDuration"
+    private let roundDurationKey = "roundDuration"
+    private let hapticsKey = "hapticsEnabled"
+    
+    init() {
+        // Load initial values from UserDefaults
+        self.n = UserDefaults.standard.object(forKey: nValueKey) as? Int ?? 2
+        self.gameDuration = UserDefaults.standard.object(forKey: gameDurationKey) as? Int ?? 60
+        self.roundDuration = UserDefaults.standard.object(forKey: roundDurationKey) as? Double ?? 2.0
+        self.hapticsEnabled = UserDefaults.standard.bool(forKey: hapticsKey)
+    }
     
     func startGame() {
         resetGame()
@@ -274,6 +301,19 @@ class DualNBackGame: ObservableObject {
                 print("Missed Audio")
                 audioResult = .missed
             }
+        }
+    }
+    
+    private func triggerHaptic(for result: AnswerResult) {
+        switch result {
+        case .correct:
+            HapticManager.shared.playCorrect()
+        case .wrong:
+            HapticManager.shared.playWrong()
+        case .missed:
+            HapticManager.shared.playMissed()
+        case .none:
+            break
         }
     }
     
