@@ -8,20 +8,33 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 28) {
 
                 // Header
-                Text("Home")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                HStack() {
+                    Spacer()
+                    Text("Dual N-Back")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    Spacer()
+                }
+                // Text("Home")
+                //     .font(.largeTitle)
+                //     .fontWeight(.bold)
 
                 // Today progress ring
-                BrainProgressView(
-                    completed: viewModel.roundsCompletedToday,
-                    goal: viewModel.dailyGoal
-                )
+                HStack() {
+                    Spacer()
+                    BrainProgressView(
+                        completed: viewModel.roundsCompletedToday,
+                        goal: viewModel.dailyGoal
+                    )
+                    Spacer()
+                }
 
                 // Calendar history
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Your Progress")
-                        .font(.headline)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding(EdgeInsets(top: 20, leading: 0, bottom: 10, trailing: 0))
 
                     HistoryGridView(history: viewModel.history)
                 }
