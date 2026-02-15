@@ -136,7 +136,7 @@ open DualNBack.xcodeproj
 
 ![Home Screen](screenshots/home.PNG)
 ![Gameplay](screenshots/gameplay.PNG)
-![Performance](screenshots/performance.PNG)
+![Performance](screenshots/performance.png)
 ![Settings](screenshots/settings.PNG)
 
 ---
